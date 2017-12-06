@@ -1,2 +1,0 @@
-# OE_17autumn_Microservice_LocalResource
-Településeken elérhető erőforrások
