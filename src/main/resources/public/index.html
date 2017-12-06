@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<!-- mvn spring-boot:run -Dserver.port=9000 -->
+<html>
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="">
+    </head>
+    <body>
+	<input type="button" value="Refresh" onclick="refresh()">
+    
+               
+            <ul id="lrlist">
+                
+            </ul>
+			<table id="table" style="text-align:center; width:50%; font-style:bold" border="2" ></table>
+			
+			 <br>
+    <label>Delete: </label>
+    <input type="number" id="idToDelete" placeholder="ID to be deleted."
+           style="width: 20rem;">
+    <input type="button" value="Delete" onclick="deleteLoc()"><br>
+    <br>
+    
+	 <form action="">
+        <div class="inputBlock">
+            <h4>Add New Location: </h4>
+        </div>
+		
+		<div class="inputBlock">
+            <label for="new-name" class="labelBlock">ID</label>
+            <input type="text" id="new-id">
+        </div>
+
+        <div class="inputBlock">
+            <label for="new-name" class="labelBlock">Name</label>
+            <input type="text" id="new-name">
+        </div>
+
+		
+		 <div class="inputBlock">
+            <label for="new-description" class="labelBlock">MaxCapacity</label><br>
+		 <input name="description" id="new-maxcapacity"></input>
+        </div>
+		
+		
+        <div class="inputBlock">
+            <label for="new-description" class="labelBlock">Description</label><br>
+            <textarea name="description" id="new-description" cols="30" rows="10"></textarea>
+        </div>
+
+        <div class="inputBlock">
+            <input type="button" value="Add" onclick="AddLoc();">
+        </div>
+
+    </form>
+
+	
+			
+			
+        <script>
+              
+					
+
+function getLocResTypes() {
+	
+    var oReq = new XMLHttpRequest();
+    oReq.responseType = 'json';
+    oReq.addEventListener('load', DataLoad);
+    oReq.open('GET', 'http://localhost:8080/datalist');
+    oReq.send();
+}
+function refresh() {
+    var table = document.getElementById('table');
+    table.innerHTML = '';
+    getLocResTypes();
+}
+
+function AfterDelete() {
+    console.log(this.response);
+    refresh();
+}
+
+function deleteLoc(){
+    var oReq = new XMLHttpRequest();
+    oReq.addEventListener('load', AfterDelete);
+    var id = document.getElementById('idToDelete').value;
+	console.log(id);
+    var path = 'http://localhost:8080/deleteLocation/' + id;
+	oReq.open('Get', path);
+	console.log('Deleted: ' + id );
+    oReq.send();
+}
+
+function AddLoc(){
+    var oReq = new XMLHttpRequest();
+    oReq.addEventListener('load', AfterAddLoc);
+    var id = document.getElementById('new-id').value;
+	var name = document.getElementById('new-name').value;
+	var description = document.getElementById('new-description').value;
+	var maxcapacity = document.getElementById('new-maxcapacity').value;
+	console.log(id);
+	console.log(name);
+	console.log(description);
+	console.log(maxcapacity);
+    var path = 'http://localhost:8080/addLocation/' + id+'/'+name+'/'+description+'/'+maxcapacity;
+	oReq.open('Get', path);
+	console.log('Added: ' + id );
+    oReq.send();
+}
+
+function AfterAddLoc() {
+    console.log(this.response);
+    refresh();
+}
+
+
+function DataLoad() {
+      
+	 var ListofLocations = this.response;   
+     var table = document.getElementById('table');
+	 var items= {0: 'Id', 1: 'Name', 2: 'Description',3: 'Max Capacity',4:'ResourceTypes'};
+	 var tr = document.createElement("tr");
+			table.appendChild(tr);
+			for (var item in items) {
+				var td = document.createElement('th');
+				//console.log(item);
+				
+				td.textContent = items[item];
+				tr.appendChild(td)
+				
+				
+			}
+
+    for(var k in ListofLocations){
+	
+		 var resources = ListofLocations[k].resourceTypes;
+								var text="";
+                             //   text += "resource list: ";
+                               for(var r in resources){
+							  text += resources[r].name + ": " + resources[r].quantity + " % " ;
+							  }
+	
+	   
+	     addTableRow(table, ListofLocations[k], 'td', text);
+		 
+	
+    
+		 
+    }
+}
+		function addTableRow(table, items, celltype,resourceListText) {
+			var tr = document.createElement("tr");
+			table.appendChild(tr);
+			
+			
+			for (var item in items) {
+				var td = document.createElement(celltype);
+				
+				
+				if(item != "resourceTypes")
+				{
+				td.textContent = items[item];
+				tr.appendChild(td)
+				}
+				
+			}
+			 var td = document.createElement(celltype);
+			 td.textContent = resourceListText;
+			 tr.appendChild(td);
+	
+	
+}
+		
+						
+
+
+                    
+        </script>
+    </body>
+</html>
